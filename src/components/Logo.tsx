@@ -15,22 +15,7 @@ export function Logo({ className }: LogoProps) {
   )
 }
 
-// Swap this out for your custom logo later — e.g. <img src="/logo.svg" .../> or paste your own <svg>.
+// The logo file lives in /public/Logo.svg and is served from the site root.
 function LogoMark() {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.25}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="size-8 sm:size-9"
-      aria-hidden="true"
-    >
-      {/* MA monogram: triangle (A) with a notch at the apex forming an M peak */}
-      <path d="M4 27 L12 6 L16 14 L20 6 L28 27" />
-      <path d="M9 20 L23 20" />
-    </svg>
-  )
+  return <img src="/Logo.svg" alt="" className="size-8 sm:size-9" />
 }
