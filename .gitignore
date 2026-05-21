@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Large source video files — commit the compressed mp4 in public/, not the original
+*.mov
+*.MOV
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
