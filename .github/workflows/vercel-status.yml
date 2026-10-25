@@ -1,0 +1,15 @@
+name: Vercel Deploy
+
+on: deployment_status
+
+jobs:
+  report:
+    name: Vercel ${{ github.event.deployment.environment }} - ${{ github.event.deployment_status.state }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment ${{ github.event.deployment_status.state }}
+        run: |
+          echo "Environment: ${{ github.event.deployment.environment }}"
+          echo "Commit:      ${{ github.event.deployment.sha }}"
+          echo "URL:         ${{ github.event.deployment_status.environment_url }}"
+          [ "${{ github.event.deployment_status.state }}" != "failure" ] && [ "${{ github.event.deployment_status.state }}" != "error" ]
