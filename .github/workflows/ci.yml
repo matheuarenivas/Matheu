@@ -64,3 +64,45 @@ jobs:
           tags: personalwebsite:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # Vercel deploys main automatically via its Git integration.
+  # This job waits for that deployment and reports its result here.
+  vercel:
+    name: Vercel deploy
+    runs-on: ubuntu-latest
+    needs: quality
+    if: github.event_name == 'push'
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: read
+    steps:
+      - name: Wait for Vercel production deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          for i in $(seq 1 90); do
+            id=$(gh api "repos/$REPO/deployments?sha=$SHA" \
+              --jq '[.[] | select(.environment | test("^production$"; "i"))][0].id // empty')
+            if [ -z "$id" ]; then
+              echo "[$i] Waiting for Vercel to start the deployment..."
+            else
+              state=$(gh api "repos/$REPO/deployments/$id/statuses" --jq '.[0].state // "pending"')
+              url=$(gh api "repos/$REPO/deployments/$id/statuses" --jq '.[0].environment_url // ""')
+              echo "[$i] Vercel deployment $id: $state"
+              case "$state" in
+                success)
+                  echo "Deployed: $url"
+                  echo "### Deployed to Vercel: $url" >> "$GITHUB_STEP_SUMMARY"
+                  exit 0 ;;
+                failure|error)
+                  echo "::error::Vercel deployment failed"
+                  exit 1 ;;
+              esac
+            fi
+            sleep 10
+          done
+          echo "::error::Timed out waiting for Vercel deployment"
+          exit 1
